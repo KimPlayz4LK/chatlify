@@ -12,7 +12,13 @@ if(data.message.startsWith(`/help`)){bot.emit(`chat-message`,{message:`
 <li>/say - Same as the <i>/retype</i> command.</li>
 </ul>
 `})}
-if(data.message.startsWith(`hello`)){bot.emit(`chat-message`,{message:`Hello there, ${data.user}!`})}
-if(data.message.startsWith(`/retype `)){bot.emit(`chat-message`,{message:data.message.substring(8,data.message.length)})}
-if(data.message.startsWith(`/say `)){bot.emit(`chat-message`,{message:data.message.substring(5,data.message.length)})}
+if(data.message.startsWith(`hello`)){bot.emit(`chat-message`,{message:`Hello there, ${data.user}!`});}
+if(data.message.startsWith(`/retype `)){bot.emit(`chat-message`,{message:data.message.substring(8,data.message.length)});}
+if(data.message.startsWith(`/say `)){bot.emit(`chat-message`,{message:data.message.substring(5,data.message.length)});}
+});
+bot.on(`new-user`,data=>{
+bot.emit(`chat-message`,{message:`Welcome to the chat, ${data.user}! I am a bot, so you can type /help to get a list of commands!`});
+});
+bot.on(`user-left`,data=>{
+bot.emit(`chat-message`,{message:`We hope you had nice time, ${data.user}.`});
 });
