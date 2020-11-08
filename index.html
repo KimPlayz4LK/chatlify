@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Chatlify</title>
+<link href="./icon.png" rel="icon">
+<script src="/socket.io/socket.io.js" defer></script>
+<script src="./script.js" defer></script>
+<link href="./styles.css" rel="stylesheet">
+</head>
+<body>
+<div id="user-list">
+</div>
+<div id="current-chat">
+
+</div>
+<div class="chat-input">
+<input type="text" placeholder="Send a message..." id="chat-input-content"><input type="button" id="chat-input-send" value="Send">
+</div>
+<img src="./icon.png" width="100" height="100" style="position:absolute;bottom:0px;left:0px;margin:0;z-index:-1;">
+
+<audio preload>
+<source src="disconnect.mp3" type="audio/mp3">
+</audio>
+
+</body>
+</html>
