@@ -45,8 +45,9 @@ socket.broadcast.emit(`user-list`,users);
 });
 
 app.get(`/`,(req,res)=>{res.sendFile(__dirname+`/index.html`);});
+app.get(`/log`,(req,res)=>{res.sendFile(__dirname+`/log.txt`);});
 app.get(`*`,(req,res)=>{
-if(req.originalUrl!=`socket.io/socket.io.js`){
+if(req.originalUrl!=`socket.io/socket.io.js`||req.originalUrl!=`log`){
 res.sendFile(__dirname+`/${req.originalUrl}`);
 }
 });
