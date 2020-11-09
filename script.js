@@ -1,5 +1,5 @@
 const chatInput=document.getElementById(`chat-input-content`);
-var lastValue=chatInput.value,stopTypingTimeout,lastTypingEmit;
+var lastValue=chatInput.value,lastTypingEmit,pingStart,pingErrorTimeout;
 function newChatMessage(user,message) {
 var msg=document.createElement(`div`);
 msg.classList=`chat-message`;
@@ -17,6 +17,18 @@ msg.appendChild(msgContent);
 msg.appendChild(msgTimestamp);
 document.getElementById(`current-chat`).appendChild(msg);
 document.getElementById(`current-chat`).scrollTop=document.getElementById(`current-chat`).scrollHeight;
+}
+function setPing(ping){
+if(!isNaN(ping)){
+if(ping>400){
+document.getElementById(`ping-indicator`).innerHTML=`<err>Ping: ${ping}</err>`;
+}else if(ping>200){
+document.getElementById(`ping-indicator`).innerHTML=`<warn>Ping: ${ping}</warn>`;
+}else if(ping>0){
+document.getElementById(`ping-indicator`).innerHTML=`<success>Ping: ${ping}</success>`;
+}}else{
+document.getElementById(`ping-indicator`).innerHTML=`<err>Ping error (${ping})</err>`;
+}
 }
 newChatMessage(`<srvr>Server</srvr>`,`Connecting to the server`);
 const socket=io();
@@ -51,6 +63,11 @@ chatInput.value=``;
 };
 
 socket.on(`chat-message`,data=>{new sound(`./sound.mp3`).play();newChatMessage(data.user,data.message);});
+socket.on(`ping-reply`,data=>{clearTimeout(window[`pingErrorTimeout`]);setPing(new Date().getTime()-window[`pingStart`]);});
+setInterval(function(){
+window[`pingStart`]=new Date().getTime();socket.emit(`get-ping`);
+window[`pingErrorTimeout`]=setTimeout(function(){setPing(`Server disconnected`);},3000);
+},1000);
 socket.on(`private-message`,data=>{
 console.log(`private-message`);
 if(data.toId==socket.id||data.originalTo.toLowerCase()==`@everyone`||data.originalTo==`@${username}`){

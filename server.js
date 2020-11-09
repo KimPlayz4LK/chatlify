@@ -50,6 +50,7 @@ await fs.writeFileSync('./log.txt',`${new Date().toUTCString()} > ${users[socket
 }
 });
 socket.on(`get-users`,async data=>{socket.emit(`user-list`,users);});
+socket.on(`get-ping`,async data=>{socket.emit(`ping-reply`);});
 socket.on(`disconnect`,async data=>{
 console.log(`${users[socket.id]} (${socket.id}) disconnected`);
 await fs.writeFileSync('./log.txt',`${new Date().toUTCString()} > ${users[socket.id]} (${socket.id}) disconnected\r\n${fs.readFileSync('./log.txt')}`);
