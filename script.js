@@ -1,4 +1,5 @@
 const chatInput=document.getElementById(`chat-input-content`);
+var lastValue=chatInput.value,stopTypingTimeout,lastTypingEmit;
 function newChatMessage(user,message) {
 var msg=document.createElement(`div`);
 msg.classList=`chat-message`;
@@ -52,7 +53,7 @@ chatInput.value=``;
 socket.on(`chat-message`,data=>{new sound(`./sound.mp3`).play();newChatMessage(data.user,data.message);});
 socket.on(`private-message`,data=>{
 console.log(`private-message`);
-if(data.toId==socket.id||data.originalTo.toLowerCase()==`@everyone`){
+if(data.toId==socket.id||data.originalTo.toLowerCase()==`@everyone`||data.originalTo==`@${username}`){
 new sound(`./ping.mp3`).play();
 newChatMessage(`<privatemsg>${data.user}</privatemsg>`,data.message);
 }
@@ -64,11 +65,33 @@ socket.on(`user-list`,data=>{refreshUserList(data);});
 socket.on(`disconnect`,()=>{new sound(`./disconnect.mp3`).play();newChatMessage(`<err>Server</err>`,`You are disconnected from the server`);});
 socket.on(`connect`,()=>{socket.emit(`new-user`,username);new sound(`./connect.mp3`).play();newChatMessage(`<success>Server</success>`,`You are (re)connected to the server`);socket.emit(`get-users`);});
 
+setInterval(function(){
+if(window[`lastValue`]!=chatInput.value.trim()){
+if(window[`lastTypingEmit`]!=`started`){
+socket.emit(`user-typing`,{user:username});
+window[`lastTypingEmit`]=`started`;
+}}else{
+if(window[`lastTypingEmit`]!=`stopped`){
+socket.emit(`user-stopped-typing`,{user:username});
+window[`lastTypingEmit`]=`stopped`;
+}}
+window[`lastValue`]=chatInput.value.trim();
+},1000);
+
+socket.on(`user-typing`,data=>{
+if(!document.getElementById(`user_${data.id}`).innerHTML.startsWith("<img src=\"./typing.gif\"")){
+document.getElementById(`user_${data.id}`).innerHTML="<img src=\"./typing.gif\" width=\"13\" height=\"13\" style=\"background-color:#888;border-radius:3px;\"> "+document.getElementById(`user_${data.id}`).innerHTML;
+}});
+
+socket.on(`user-stopped-typing`,data=>{
+document.getElementById(`user_${data.id}`).innerHTML=data.user;
+});
+
 function refreshUserList(users) {
 document.getElementById(`user-list`).innerHTML=``;
 for(var user in users){
 var el=document.createElement(`div`);
-el.innerHTML=`<user>${users[user]}<user><br><id>(${user})</id>`;
+el.innerHTML=`<user id='user_${user}'>${users[user]}</user><br><id>${user}</id>`;
 if(user==socket.id){el.classList=`self-card`;}
 document.getElementById(`user-list`).appendChild(el);
 }
