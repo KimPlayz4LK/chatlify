@@ -5,11 +5,17 @@ const io=require(`socket.io`)(http);
 require(`dotenv`);
 const port=process.env.port||8080;
 const fs=require(`fs`);
+const bannedIps=fs.readFileSync(`./banned-ips.txt`,{encoding:`utf-8`,flag:`r`});
 var users={};
 require(`./bot.js`);
 io.on(`connection`,async socket=>{
 console.log(`Connection from ${socket.handshake.headers['x-forwarded-for']} to ${socket.handshake.headers.referer}`);
 await fs.writeFileSync('./log.txt',`${new Date().toUTCString()} > Connection from ${socket.handshake.headers['x-forwarded-for']} to ${socket.handshake.headers.referer}\r\n${fs.readFileSync('./log.txt')}`);
+if(socket.handshake.headers['x-forwarded-for'].includes(`,`)){var ipAddress=socket.handshake.headers['x-forwarded-for'].split(`,`);}else{var ipAddress=[socket.handshake.headers['x-forwarded-for']];}
+if(bannedIps.includes(ipAddress[0])){
+socket.emit(`server-message`,`<err>Unable to connect to the chat as this IP address was banned from the server.</err>`);
+socket.disconnect(true);
+}else{
 socket.on(`new-user`,async data=>{
 console.log(`${data} (${socket.id}) connected`);
 await fs.writeFileSync('./log.txt',`${new Date().toUTCString()} > ${data} (${socket.id}) connected\r\n${fs.readFileSync('./log.txt')}`);
@@ -19,7 +25,6 @@ socket.broadcast.emit(`user-list`,users);
 socket.broadcast.emit(`new-user`,{user:`${data} (${socket.id})`});
 socket.emit(`server-message`,`You are connected as ${data} (${socket.id})`);
 });
-
 socket.on(`user-typing`,async data=>{
 users[socket.id]="<img src=\"./typing.gif\" width=\"13\" height=\"13\" style=\"background-color:#888;border-radius:3px;\"> "+data.user;
 //socket.broadcast.emit(`user-typing`,{user:users[socket.id],id:socket.id});
@@ -34,7 +39,6 @@ users[socket.id]=data.user;
 socket.broadcast.emit(`user-list`,users);
 socket.emit(`user-list`,users);
 });
-
 socket.on(`chat-message`,async data=>{
 console.log(`${users[socket.id]} (${socket.id}): ${data.message}`);
 await fs.writeFileSync('./log.txt',`${new Date().toUTCString()} > ${users[socket.id]} (${socket.id}): ${data.message}\r\n${fs.readFileSync('./log.txt')}`);
@@ -60,6 +64,7 @@ delete users[socket.id];
 socket.broadcast.emit(`user-list`,users);
 });
 setInterval(function(){socket.emit(`user-list`,users);},5000);
+}
 });
 
 app.get(`/`,(req,res)=>{res.sendFile(__dirname+`/index.html`);});
@@ -69,6 +74,5 @@ if(req.originalUrl!=`socket.io/socket.io.js`||req.originalUrl!=`log`){
 res.sendFile(__dirname+`/${req.originalUrl}`);
 }
 });
-
 
 http.listen(port,async ()=>{console.log(`Server started at port ${port}`);await fs.writeFileSync('./log.txt',`${new Date().toUTCString()} > Server started at port ${port}\r\n${fs.readFileSync('./log.txt')}`);});
