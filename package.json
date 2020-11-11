@@ -1,7 +1,7 @@
 {
   "name": "chatlify",
   "version": "1.0.0",
-  "description": "",
+  "description": "A Socket.IO-based app built with Node.JS",
   "main": "script.js",
   "scripts": {
     "start":"node server.js"
