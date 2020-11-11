@@ -21,11 +21,11 @@ document.getElementById(`current-chat`).scrollTop=document.getElementById(`curre
 function setPing(ping){
 if(!isNaN(ping)){
 if(ping>400){
-document.getElementById(`ping-indicator`).innerHTML=`<err>Ping: ${ping}</err>`;
+document.getElementById(`ping-indicator`).innerHTML=`<err>Ping: ${ping}ms</err>`;
 }else if(ping>200){
-document.getElementById(`ping-indicator`).innerHTML=`<warn>Ping: ${ping}</warn>`;
+document.getElementById(`ping-indicator`).innerHTML=`<warn>Ping: ${ping}ms</warn>`;
 }else if(ping>0){
-document.getElementById(`ping-indicator`).innerHTML=`<success>Ping: ${ping}</success>`;
+document.getElementById(`ping-indicator`).innerHTML=`<success>Ping: ${ping}ms</success>`;
 }}else{
 document.getElementById(`ping-indicator`).innerHTML=`<err>Ping error (${ping})</err>`;
 }

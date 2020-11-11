@@ -24,6 +24,7 @@ socket.broadcast.emit(`server-message`,`${data} (${socket.id}) connected`);
 socket.broadcast.emit(`user-list`,users);
 socket.broadcast.emit(`new-user`,{user:`${data} (${socket.id})`});
 socket.emit(`server-message`,`You are connected as ${data} (${socket.id})`);
+socket.emit(`private-message`,{user:`<srvr>Server<srvr>`,message:`<privatemsg>${data}, if you want to hear sounds for new messages, mentions and other stuff, make sure to just click anywhere in the chat.</rivatemsg>`,to:data,toId:socket.id,originalTo:`@${data}`});
 });
 socket.on(`user-typing`,async data=>{
 users[socket.id]="<img src=\"./typing.gif\" width=\"13\" height=\"13\" style=\"background-color:#888;border-radius:3px;\"> "+data.user;
