@@ -4,7 +4,7 @@ function newChatMessage(user,message) {
 var msg=document.createElement(`div`);
 msg.classList=`chat-message`;
 var msgUser=document.createElement(`p`);
-msgUser.innerHTML=user;
+msgUser.innerHTML=user.replace('<img src=\"./typing.gif\" width=\"13\" height=\"13\" style=\"background-color:#888;border-radius:3px;\"> ','');
 msgUser.classList=`chat-message-user`;
 var msgContent=document.createElement(`p`);
 msgContent.innerHTML=message;
@@ -32,7 +32,14 @@ document.getElementById(`ping-indicator`).innerHTML=`<err>Ping error (${ping})</
 }
 newChatMessage(`<srvr>Server</srvr>`,`Connecting to the server`);
 const socket=io();
-const username=prompt(`Enter your username`,`Guest_${Math.round(Math.random()*10000)}`);
+var usernameCheck=prompt(`Enter your username`,`Guest_${Math.round(Math.random()*10000)}`);
+const username=usernameCheck==null||usernameCheck=="" ? `Guest_${Math.round(Math.random()*10000)}` : usernameCheck;
+
+function changeSocketId(custom){
+  if(custom){socket.id=custom;}else{socket.id="u"+Math.round(Math.random()*10000);}
+  socket.emit(`change-socket-id`,{id:socket.id});
+  socket.emit(`new-user`,username);
+}
 
 function sound(src){
 this.sound=document.createElement("audio");
@@ -56,7 +63,7 @@ socket.emit(`private-message`,{user:username,message:chatInput.value,timestamp:n
 newChatMessage(`<privatemsg>>> ${chatInput.value.trim().split(` `)[0].replace(`@`,``)}</privatemsg>`,chatInput.value.replace(chatInput.value.split(` `)[0],``).trim());
 }else{
 socket.emit(`chat-message`,{user:username,message:chatInput.value,timestamp:new Date().getTime()});
-newChatMessage(`<mymsg>${username} (${socket.id})</mymsg>`,chatInput.value);
+//newChatMessage(`<mymsg>${username} (${socket.id})</mymsg>`,chatInput.value);
 }
 chatInput.value=``;
 }
@@ -69,7 +76,6 @@ window[`pingStart`]=new Date().getTime();socket.emit(`get-ping`);
 window[`pingErrorTimeout`]=setTimeout(function(){setPing(`Server disconnected`);},3000);
 },1000);
 socket.on(`private-message`,data=>{
-console.log(`private-message`);
 if(data.toId==socket.id||data.originalTo.toLowerCase()==`@everyone`||data.originalTo==`@${username}`){
 new sound(`./ping.mp3`).play();
 newChatMessage(`<privatemsg>${data.user}</privatemsg>`,data.message);
@@ -80,7 +86,7 @@ socket.on(`error-message`,data=>{new sound(`./sound.mp3`).play();newChatMessage(
 socket.on(`custom-message`,data=>{new sound(data.sound||`./sound.mp3`).play();newChatMessage(data.user||`<custom>Server</custom>`,data.message);});
 socket.on(`user-list`,data=>{refreshUserList(data);});
 socket.on(`disconnect`,()=>{new sound(`./disconnect.mp3`).play();newChatMessage(`<err>Server</err>`,`You are disconnected from the server`);});
-socket.on(`connect`,()=>{socket.emit(`new-user`,username);new sound(`./connect.mp3`).play();newChatMessage(`<success>Server</success>`,`You are (re)connected to the server`);socket.emit(`get-users`);});
+socket.on(`connect`,()=>{changeSocketId();new sound(`./connect.mp3`).play();newChatMessage(`<success>Server</success>`,`You are (re)connected to the server`);socket.emit(`get-users`);});
 
 setInterval(function(){
 if(window[`lastValue`]!=chatInput.value.trim()){

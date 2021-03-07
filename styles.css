@@ -36,3 +36,5 @@ a:hover{text-decoration:underline;}
 privatemsg{color:#fc0;}
 p.chat-message-timestamp{text-align:right;color:#666;margin:10px;display:inline-block;float:right;}
 #ping-indicator{position:fixed;top:5px;right:5px;z-index:10;background-color:#222;border-radius:5px;padding:3px;}
+@keyframes rainbow{0%{color:red;}10%{color:orange;}20%{color:yellow;}30%{color:lime;}40%{color:blue;}50%{color:cyan;}60%{color:pink;}70%{color:violet;}80%{color:brown;}90%{color:white;}100%{color:red;}}
+rainbow{animation:rainbow infinite 10s;}
