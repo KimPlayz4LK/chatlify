@@ -25,6 +25,7 @@ broadcast(server,msg);
 socket.on("close",function(code,reason){broadcast(server,`[Someone disconnected, ${server.connections.length} users connected]`);});
 socket.on("error",function(err){if(err.code!=='ECONNRESET'){throw err}});
 }).listen(8002);
+await fs.writeFileSync('./log.txt',`${new Date().toUTCString()} > WebSocket server started at port 8002\r\n${fs.readFileSync('./log.txt')}`);
 function broadcast(server,msg){server.connections.forEach(function(socket){socket.sendText(msg)});}
 
 io.on(`connection`,async socket=>{
